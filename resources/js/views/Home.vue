@@ -1,32 +1,34 @@
 <template>
   <div>
-    <p>Hello World!</p>
+    <p>{{appelApi}}</p>
+    <q-btn color="secondary" label="Prêt pour appel api"  @click="sendApi"/>
+    <h1>{{ backApi }}</h1>
+    <q-btn color="deep-orange" glossy label="Reset message api" @click="resetApi"/>
   </div>
-  <div class="q-pa-md">
-    <div class="q-gutter-md" style="max-width: 300px">
-      <q-input v-model="text" label="Standard" />
+</template>
+<script>
+import axios from 'axios';
 
-      <q-input filled v-model="text" label="Filled" />
-
-      <q-input outlined v-model="text" label="Outlined" />
-
-      <q-input standout v-model="text" label="Standout" />
-
-      <q-input standout="bg-teal text-white" v-model="text" label="Custom standout" />
-
-      <q-input borderless v-model="text" label="Borderless" />
-
-      <q-input rounded filled v-model="text" label="Rounded filled" />
-
-      <q-input rounded outlined v-model="text" label="Rounded outlined" />
-
-      <q-input rounded standout v-model="text" label="Rounded standout" />
-
-      <q-input square filled v-model="text" label="Square filled" />
-
-      <q-input square outlined v-model="text" label="Square outlined" />
-
-      <q-input square standout v-model="text" label="Square standout" />
-    </div>
-  </div>
-  </template>
+export default {
+  data() {
+    return {
+      appelApi: "Test appel api !",
+      backApi: "Avant retour api"
+    }
+  },
+  methods: {
+    async sendApi() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api');        
+        console.log(response.data);
+        this.backApi = response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des données :', error);
+      }
+    },
+    resetApi() {
+      this.backApi = "Avant retour api";
+    }
+  }
+}
+</script>
