@@ -1,9 +1,24 @@
 <template>
   <div>
-    <p>{{ appelApi }}</p>
-    <q-btn color="secondary" label="Prêt pour appel api"  @click="sendApi"/>
-    <q-card class="my-card">
-      <q-img :src="urlImg" id="qImg">
+    <q-form
+      @submit="sendApi"
+      @reset="reset"
+      class="q-gutter-md"
+    >
+      <q-input
+        filled
+        v-model="name"
+        label="Entrez le nom du film"
+      />
+      <div>
+        <q-btn label="Submit" type="submit" color="primary"/>
+        <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+      </div>
+    </q-form>
+
+
+    <q-card class="my-card" style="width: 50vh;">
+      <q-img :src="urlImgComplete" id="qImg">
         <div class="absolute-top text-h6">
           {{ title }}
         </div>
@@ -22,11 +37,11 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      appelApi: "Test appel api !",
+      name: '',
       title: '',
       synopsis: '',
       url : 'https://api.themoviedb.org/3/search/movie',
-      urlImg: 'https://image.tmdb.org/t/p/w500'
+      urlImgComplete: ''
     }
   },
   methods: {
@@ -35,7 +50,7 @@ export default {
                                         method: 'get',
                                         url: this.url,
                                         params: {
-                                          query: 'barbie',
+                                          query: this.name,
                                           include_adult: false,
                                           language: 'fr-FR',
                                           page: 1
@@ -47,13 +62,16 @@ export default {
 
                                       }})
                                       .then(response => (response.data.results[0]));
-        console.log(response);
         this.title = response.title;
         this.synopsis = response.overview;
-        var urlImg = this.urlImg+response.poster_path;
+        var urlImg = response.poster_path;
+        console.log(`urlBase :\n ${this.urlBase}`);
         console.log(`url :\n ${urlImg}`);
-        this.urlImg = urlImg;
+        this.urlImgComplete = `https://image.tmdb.org/t/p/w500${urlImg}`;
 
+    },
+    reset(){
+      this.name = "";
     }
   }
 }
