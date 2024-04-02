@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('media', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('path');
-            $table->string('type');
+            $table->string('synopsis');
+            $table->string('urlimg');
             $table->timestamps();
         });
 

@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,6 +17,4 @@ Route::get('/', function () {
     return view('app');
 });
 
-Route::get('/api', function () {
-    return "appel api réussi";
-});
+Route::post('/movie/setMovie', [MediaController::class, 'createMovie']);

@@ -28,7 +28,6 @@
         {{ synopsis }}
       </q-card-section>
     </q-card>
-
   </div>
 </template>
 <script>
@@ -41,14 +40,17 @@ export default {
       title: '',
       synopsis: '',
       url : 'https://api.themoviedb.org/3/search/movie',
-      urlImgComplete: ''
+      urlImgComplete: '',
+      jsonData: {
+        name: '',
+        synopsis: '',
+        urlImg: ''
+      }
     }
   },
   methods: {
     async sendApi() {
-        const response = await axios({
-                                        method: 'get',
-                                        url: this.url,
+        const response = await axios.get(`${this.url}`,{
                                         params: {
                                           query: this.name,
                                           include_adult: false,
@@ -65,11 +67,23 @@ export default {
         this.title = response.title;
         this.synopsis = response.overview;
         var urlImg = response.poster_path;
-        console.log(`urlBase :\n ${this.urlBase}`);
-        console.log(`url :\n ${urlImg}`);
         this.urlImgComplete = `https://image.tmdb.org/t/p/w500${urlImg}`;
 
-    },
+      // Config for send to movie to backent
+      this.jsonData = {
+        "name": this.title,
+        "synopsis": this.synopsis,
+        "urlImg": this.urlImgComplete
+      }
+
+      const setMovie = await axios.post("http://127.0.0.1:8000/movie/setMovie",this.jsonData,{
+                                      headers:{
+                                        accept: 'application/json',
+                                        'Content-Type': 'application/json'
+                                      }})
+                                      .then(response => (response.data.message))
+                                      .catch(e => (`Erreur lors de la récupération de données \n ${e}`))
+      },
     reset(){
       this.name = "";
     }
