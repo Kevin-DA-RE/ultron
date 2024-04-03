@@ -44,7 +44,7 @@ export default {
       jsonData: {
         name: '',
         synopsis: '',
-        urlImg: ''
+        url_img: ''
       }
     }
   },
@@ -71,9 +71,9 @@ export default {
 
       // Config for send to movie to backent
       this.jsonData = {
-        "name": this.title,
+        'name': this.title,
         "synopsis": this.synopsis,
-        "urlImg": this.urlImgComplete
+        "url_img": this.urlImgComplete
       }
 
       const setMovie = await axios.post("http://127.0.0.1:8000/movie/setMovie",this.jsonData,{
