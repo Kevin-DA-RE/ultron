@@ -1,5 +1,5 @@
 <template>
-  <div>
+<div>
     <q-form
       @submit="sendApi"
       @reset="reset"
@@ -16,22 +16,21 @@
       </div>
     </q-form>
 
-
-    <q-card class="my-card" style="width: 50vh;">
-      <q-img :src="urlImgComplete" id="qImg">
-        <div class="absolute-top text-h6">
-          {{ title }}
-        </div>
-      </q-img>
-
-      <q-card-section>
-        {{ synopsis }}
-      </q-card-section>
-    </q-card>
+        <q-card class="my-card" style="width: 50vh;">
+        <q-img :src="urlImgComplete" id="qImg">
+            <div class="absolute-top text-h6">
+            {{ title }}
+            </div>
+        </q-img>
+        <q-card-section>
+            {{ synopsis }}
+        </q-card-section>
+        </q-card>
   </div>
 </template>
 <script>
 import axios from 'axios';
+import {Notify} from 'quasar'
 
 export default {
   data() {
@@ -45,7 +44,8 @@ export default {
         name: '',
         synopsis: '',
         url_img: ''
-      }
+      },
+      visible: false,
     }
   },
   methods: {
@@ -76,12 +76,19 @@ export default {
         "url_img": this.urlImgComplete
       }
 
-      const setMovie = await axios.post("http://127.0.0.1:8000/movie/setMovie",this.jsonData,{
+      await axios.post("http://127.0.0.1:8000/movie/setMovie",this.jsonData,{
                                       headers:{
                                         accept: 'application/json',
                                         'Content-Type': 'application/json'
                                       }})
-                                      .then(response => (response.data.message))
+                                      .then(response => (
+                                        console.log(response.data),
+                                        Notify.create({
+                                            message: response.data.message,
+                                            position: 'top', // Positionnez la notification en haut
+                                            timeout: 2500
+                                            })
+                                        ))
                                       .catch(e => (`Erreur lors de la récupération de données \n ${e}`))
       },
     reset(){

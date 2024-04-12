@@ -9,13 +9,13 @@ class MediaController extends Controller
 {
     public function createMovie (Request $request)
    {
-    $model = new Media();
-    $model->name = $request->name;
-    $model->synopsis = $request->synopsis;
-    $model->urlimg = $request->url_img;
-    $model->save();
+    $media = new Media();
+    $media->name = $request->name;
+    $media->synopsis = $request->synopsis;
+    $media->urlimg = $request->url_img;
+    $media->save();
 
-    return $model;
+    return ["statut"=> "OK", "message" => "Le film '$media->name' est bien enregistré"];
    }
 
 }
