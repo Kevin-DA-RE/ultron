@@ -17,4 +17,5 @@ Route::get('/', function () {
     return view('app');
 });
 
-Route::post('/movie/setMovie', [MediaController::class, 'createMovie']);
+Route::get('/movie/get-movie', [MediaController::class, 'getMovie']);
+Route::post('/movie/create-movie', [MediaController::class, 'createMovie']);

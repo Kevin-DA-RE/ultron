@@ -15,17 +15,29 @@
         <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
       </div>
     </q-form>
-
+    <div v-for="movie in movies">
         <q-card class="my-card" style="width: 50vh;">
-        <q-img :src="urlImgComplete" id="qImg">
+        <q-img :src="movie.urlimg" id="qImg">
             <div class="absolute-top text-h6">
-            {{ title }}
+            {{ movie.name }}
             </div>
         </q-img>
         <q-card-section>
-            {{ synopsis }}
+            {{ movie.synopsis }}
         </q-card-section>
         </q-card>
+    </div>
+    <q-card class="my-card" style="width: 50vh;">
+        <q-img :src="this.jsonData.url_img" id="qImg">
+            <div class="absolute-top text-h6">
+            {{ this.jsonData.name }}
+            </div>
+        </q-img>
+        <q-card-section>
+            {{ this.jsonData.synopsis }}
+        </q-card-section>
+        </q-card>
+
   </div>
 </template>
 <script>
@@ -36,8 +48,6 @@ export default {
   data() {
     return {
       name: '',
-      title: '',
-      synopsis: '',
       url : 'https://api.themoviedb.org/3/search/movie',
       urlImgComplete: '',
       jsonData: {
@@ -45,7 +55,7 @@ export default {
         synopsis: '',
         url_img: ''
       },
-      visible: false,
+      movies:[],
     }
   },
   methods: {
@@ -64,19 +74,18 @@ export default {
 
                                       }})
                                       .then(response => (response.data.results[0]));
-        this.title = response.title;
-        this.synopsis = response.overview;
+
         var urlImg = response.poster_path;
         this.urlImgComplete = `https://image.tmdb.org/t/p/w500${urlImg}`;
 
-      // Config for send to movie to backent
+      // Config for send to movie to backend
       this.jsonData = {
-        'name': this.title,
-        "synopsis": this.synopsis,
+        "name": response.title,
+        "synopsis": response.overview,
         "url_img": this.urlImgComplete
       }
 
-      await axios.post("http://127.0.0.1:8000/movie/setMovie",this.jsonData,{
+      await axios.post("http://127.0.0.1:8000/movie/create-movie",this.jsonData,{
                                       headers:{
                                         accept: 'application/json',
                                         'Content-Type': 'application/json'
@@ -91,11 +100,28 @@ export default {
                                         ))
                                       .catch(e => (`Erreur lors de la récupération de données \n ${e}`))
       },
-    reset(){
-      this.name = "";
+        reset(){
+        this.name = "";
+        }
+    },
+    mounted(){
+            axios.get("http://127.0.0.1:8000/movie/get-movie")
+            .then(r => {
+              this.movies = r.data;
+              /*
+                r.data.forEach(element => {
+                this.jsonData = {
+                        "name": element.name,
+                        "synopsis": element.synopsis,
+                        "url_img": element.url_img
+                    }
+                });*/
+            })
+            .catch( e => {
+                console.log(`erreur lors de la recuperation des données : \n ${e}`);
+            })
+        }
     }
-  }
-}
 </script>
 <style>
 #qImg {
