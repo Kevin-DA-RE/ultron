@@ -14,4 +14,8 @@ class Media extends Model
         'synopsis',
         'urlimg'
     ];
+
+    public function category (){
+     return $this->belongsTo(Category::class);
+    }
 }

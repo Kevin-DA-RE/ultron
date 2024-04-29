@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 
 class MediaController extends Controller
 {
+
+    public function index()
+    {
+        return "Hello world";
+    }
+
+
+    
     public function getMovie ()
     {
         return Media::all();

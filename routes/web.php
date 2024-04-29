@@ -12,10 +12,15 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/', [MediaController::class, 'index']);
 
+/*
 Route::get('/', function () {
     return view('app');
 });
+*/
 
-Route::get('/movie/get-movie', [MediaController::class, 'getMovie']);
-Route::post('/movie/create-movie', [MediaController::class, 'createMovie']);
+Route::controller(MediaController::class)->group(function () {
+    Route::get('/movie/get-movie', 'getMovie');
+    Route::post('/movie/create-movie', 'createMovie');
+});
