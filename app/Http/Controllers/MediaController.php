@@ -10,7 +10,7 @@ class MediaController extends Controller
 
     public function index()
     {
-        return "Hello world 1";
+        return "Hello world";
     }
 
 
