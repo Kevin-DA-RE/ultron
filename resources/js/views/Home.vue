@@ -1,9 +1,18 @@
 <template>
   <div>
+    <q-form
+      @submit="sendMovies"
+      class="q-gutter-md"
+    >
       <q-uploader
       label="Téléchargez votre fichier"
       @added="sendApi"
       ></q-uploader>
+      <div>
+        <q-btn label="Submit" type="submit" color="primary"/>
+        <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+      </div>
+      </q-form>
 
       <div v-show="visible">
                 <q-card class="my-card" style="width: 50vh;">
@@ -48,7 +57,6 @@
                     formData.append('files', file.name);
                     });
                     var name= files[0].name.split('.mp4')[0];
-                    console.log(name);
 
                     this.getMovie(name);                   
               
@@ -117,12 +125,12 @@
                         });
           return category;
         },
-        sendMovies(movies)
+        sendMovies()
         {
         /**
          * Envoi data pour créer un film
          */
-          axios.post("http://127.0.0.1:8000/movie/get-information",movies,{
+          axios.post("http://127.0.0.1:8000/movie/get-information",this.jsonData,{
                                         headers:{
                                           accept: 'application/json',
                                           'Content-Type': 'application/json'

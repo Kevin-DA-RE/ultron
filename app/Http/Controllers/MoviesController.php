@@ -14,7 +14,7 @@ class MoviesController extends Controller
         $result = Movie::all();
     }
 
-    public function getInfo (Movie $movie, Request $request)
+    public function getInfo (Request $request)
     {
         return $request;
     }
