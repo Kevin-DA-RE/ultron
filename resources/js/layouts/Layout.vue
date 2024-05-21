@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Vue Router Demo App</h1>
+        <h1>Ultron</h1>
  
         <p>
             <router-link :to="{ name: 'home' }">Home</router-link> |
