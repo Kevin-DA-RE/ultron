@@ -5,6 +5,7 @@
       class="q-gutter-md"
     >
       <q-uploader
+      multiple
       label="Téléchargez votre fichier"
       @added="sendApi"
       ></q-uploader>
@@ -15,21 +16,22 @@
       </q-form>
 
       <div v-show="visible">
-                <q-card class="my-card" style="width: 50vh;">
-                  <div v-for="genre in jsonData.genre_name">
+          <div v-for="movie in movies">
+            <q-card class="my-card" style="width: 50vh;">
+                  <div v-for="genre in movie.genre_name">
                     <q-badge outline color="primary" :label="genre" />
                   </div>
-                <q-img :src="this.jsonData.url_img" id="qImg">
+                <q-img :src="movie.url_img" id="qImg">
                     <div class="absolute-top text-h6">
-                    {{ this.jsonData.name }}
+                    {{ movie.name }}
                     </div>
                 </q-img>
                 <q-card-section>
-                    {{ this.jsonData.synopsis }}
+                    {{ movie.synopsis }}
                 </q-card-section>
-                </q-card>
+              </q-card>
           </div>
-      
+        </div>
     </div>
   </template>
   <script>
@@ -47,25 +49,22 @@
         },      
         urlImgComplete: '',
         jsonData: {},
+        movies: [],
         visible: false,
       }
     },
     methods: {
       sendApi(files) {
-                    const formData = new FormData();
-                    files.forEach(file => {
-                    formData.append('files', file.name);
-                    });
-                    var name= files[0].name.split('.mp4')[0];
+        if (this.visible == false) {
+          this.visible = true;
+        }
 
-                    this.getMovie(name);                   
-              
-                    // Config for send to movie to backend
-                    this.getGenre();
-                    this.visible = true;
-            },        
-        async getMovie(name)
-        {
+        console.log(files[0].name.split('.mp4')[0]);
+        var name = files[0].name.split('.mp4')[0];
+
+        this.getMovie(name); 
+      },
+      async getMovie(name){
         /**
          * Recuperation data movie
          */
@@ -95,10 +94,12 @@
                       "genre_id": movie.genre_ids,
                       "genre_name":[]
                     }
-          return this.jsonData;
+          this.getGenre(this.jsonData.genre_id);
+          this.movies.push(this.jsonData);
+          console.log(this.movies);
         },
-        async getGenre()
-        {
+        
+        async getGenre(arrayId) {
           /**
          * Recuperation data category
          */
@@ -115,15 +116,15 @@
                                         }})
                                         .then(category => category.data.genres)
                                         .catch(error => console.log(`Erreur lors de la récupération de datas sur le film \n ${error}`));
-           // Insert category in jsonData
-           this.jsonData.genre_id.forEach(id => {
+        arrayId.forEach(id => {
                         category.forEach(ids => {
                                 if (id === ids.id) {
                                   this.jsonData.genre_name.push(ids.name);
                                 }
                             });
-                        });
-          return category;
+                        }
+                      );
+         return this.jsonData.genre_name;             
         },
         sendMovies()
         {
