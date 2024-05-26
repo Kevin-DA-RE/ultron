@@ -54,21 +54,53 @@
       }
     },
     methods: {
-      sendApi(files) {
+      async sendApi(files) {
         if (this.visible == false) {
           this.visible = true;
         }
+      const extension = [
+        ".mp4",
+        ".mkv",
+        ".avi",
+        ".mpeg",
+        ".mpg"
+      ];
 
-        console.log(files[0].name.split('.mp4')[0]);
-        var name = files[0].name.split('.mp4')[0];
-
-        this.getMovie(name); 
+      files.forEach(file => {
+        extension.forEach(ext => {
+          if (file.name.includes(ext)) {
+             var name = file.name.split(ext)[0];
+              this.getMovieWithGenre(name);
+          }         
+        })  
+      });
+       
       },
+
+      // Recherche du film et de son/ses genre(s)
+      async getMovieWithGenre(name){
+        const movieData = await this.getMovie(name);
+        if (!movieData) {
+          return `Le film n'a pas été trouvé`;
+        }
+        
+        const genreData = await this.getGenre(movieData.genre_id);
+        if (!genreData) {
+          return `Le genre n'a pas été trouvé`;
+        }
+
+        return {
+          "movie": movieData,
+          "genre": genreData
+        }
+      },
+
+      //Recherche du film
       async getMovie(name){
         /**
          * Recuperation data movie
          */
-         var movie = await axios.get(`${this.apiTMDB.url_movies}`,{
+         var moviesList = await axios.get(`${this.apiTMDB.url_movies}`,{
                                           params: {
                                             query: name,
                                             include_adult: false,
@@ -81,22 +113,40 @@
                                           'Content-Type': 'application/json'
   
                                         }})
-                                        .then(movie => movie.data.results[0])
+                                        .then(movie => movie.data.results)
                                         .catch(error => console.log(`Erreur lors de la récupération de datas sur le film \n ${error}`));
 
-              var urlImg = movie.poster_path;
+              // Nous checkons la taille de movies pour ensuite retourner le ou les films trouvés
+              const movieLength = moviesList.length;
+              var movies = movieLength > 0 ?  moviesList:moviesList[0];
+              var urlImg = movies.poster_path;
               this.urlImgComplete = `https://image.tmdb.org/t/p/original${urlImg}`;
-              this.jsonData = {
-                      "id": movie.id,
-                      "name": movie.title,
-                      "synopsis": movie.overview,
-                      "url_img": this.urlImgComplete,
-                      "genre_id": movie.genre_ids,
-                      "genre_name":[]
-                    }
-          this.getGenre(this.jsonData.genre_id);
-          this.movies.push(this.jsonData);
-          console.log(this.movies);
+
+              if (movieLength> 0) {
+                
+                console.log("nous retournons tous les films trouvés");
+                movies.forEach(movie => {
+                  console.log(movie);
+                   return  {
+                        "id": movie.id,
+                        "name": movie.title,
+                        "synopsis": movie.overview,
+                        "url_img": this.urlImgComplete,
+                        "genre_id": movie.genre_ids
+                      }
+                });
+              } else {
+                console.log("nous retournons le film trouvé");
+                console.log(moviesList);
+                return  {
+                        "id": moviesList.id,
+                        "name": moviesList.title,
+                        "synopsis": moviesList.overview,
+                        "url_img": this.urlImgComplete,
+                        "genre_id": moviesList.genre_ids
+                      }
+              }
+             
         },
         
         async getGenre(arrayId) {
@@ -116,15 +166,18 @@
                                         }})
                                         .then(category => category.data.genres)
                                         .catch(error => console.log(`Erreur lors de la récupération de datas sur le film \n ${error}`));
-        arrayId.forEach(id => {
-                        category.forEach(ids => {
-                                if (id === ids.id) {
-                                  this.jsonData.genre_name.push(ids.name);
-                                }
-                            });
-                        }
-                      );
-         return this.jsonData.genre_name;             
+            // Nous comparons la liste de tous les genres avec ceux identifiés et nous gardons que ceux qui sont indenitifiés par le film
+            var genre = [];
+            arrayId.forEach(id => {
+                            category.forEach(ids => {
+                                    if (id === ids.id) {
+                                      genre.push(ids.name);
+                                    }
+                                });
+                            }
+                          );
+                          console.log(genre);
+         return genre;             
         },
         sendMovies()
         {
