@@ -16,27 +16,27 @@
       </q-form>
 
       <div v-show="visible">
-          <div v-for="movie in movies">
             <q-card class="my-card" style="width: 50vh;">
-                  <div v-for="genre in movie.genre_name">
-                    <q-badge outline color="primary" :label="genre" />
+              <div v-for="movie in moviesList">
+                     <div v-for="genre in movie.genre_name">
+                    <q-badge outline color="primary" :label="genre.name" />
                   </div>
-                <q-img :src="movie.url_img" id="qImg">
-                    <div class="absolute-top text-h6">
-                    {{ movie.name }}
-                    </div>
-                </q-img>
-                <q-card-section>
-                    {{ movie.synopsis }}
-                </q-card-section>
+                    <q-img :src="movie.url_img" id="qImg">
+                        <div class="absolute-top text-h6">
+                        {{ movie.name }}
+                        </div>
+                    </q-img>
+                    <q-card-section>
+                        {{ movie.synopsis }}
+                    </q-card-section>
+                  </div>
               </q-card>
-          </div>
         </div>
     </div>
   </template>
   <script>
   import axios from 'axios';
-  import {Notify} from 'quasar'
+  import {Notify} from 'quasar';
   
   export default {
     data() {
@@ -49,7 +49,7 @@
         },      
         urlImgComplete: '',
         jsonData: {},
-        movies: [],
+        moviesList: [],
         visible: false,
       }
     },
@@ -67,10 +67,12 @@
       ];
 
       files.forEach(file => {
-        extension.forEach(ext => {
+        extension.forEach(async ext => {
           if (file.name.includes(ext)) {
-             var name = file.name.split(ext)[0];
-              this.getMovieWithGenre(name);
+              var name = file.name.split(ext)[0];
+              const data = await this.getMovieWithGenre(name);
+              this.moviesList.push(data);
+              console.log(data);
           }         
         })  
       });
@@ -88,11 +90,9 @@
         if (!genreData) {
           return `Le genre n'a pas été trouvé`;
         }
-
-        return {
-          "movie": movieData,
-          "genre": genreData
-        }
+        
+        movieData.genre_name = genreData;
+        return movieData;
       },
 
       //Recherche du film
@@ -100,7 +100,7 @@
         /**
          * Recuperation data movie
          */
-         var moviesList = await axios.get(`${this.apiTMDB.url_movies}`,{
+         var movie = await axios.get(`${this.apiTMDB.url_movies}`,{
                                           params: {
                                             query: name,
                                             include_adult: false,
@@ -116,36 +116,16 @@
                                         .then(movie => movie.data.results)
                                         .catch(error => console.log(`Erreur lors de la récupération de datas sur le film \n ${error}`));
 
-              // Nous checkons la taille de movies pour ensuite retourner le ou les films trouvés
-              const movieLength = moviesList.length;
-              var movies = movieLength > 0 ?  moviesList:moviesList[0];
-              var urlImg = movies.poster_path;
+              var urlImg = movie[0].poster_path;
               this.urlImgComplete = `https://image.tmdb.org/t/p/original${urlImg}`;
-
-              if (movieLength> 0) {
-                
-                console.log("nous retournons tous les films trouvés");
-                movies.forEach(movie => {
-                  console.log(movie);
-                   return  {
-                        "id": movie.id,
-                        "name": movie.title,
-                        "synopsis": movie.overview,
-                        "url_img": this.urlImgComplete,
-                        "genre_id": movie.genre_ids
-                      }
-                });
-              } else {
-                console.log("nous retournons le film trouvé");
-                console.log(moviesList);
                 return  {
-                        "id": moviesList.id,
-                        "name": moviesList.title,
-                        "synopsis": moviesList.overview,
+                        "id": movie[0].id,
+                        "name": movie[0].title,
+                        "synopsis": movie[0].overview,
                         "url_img": this.urlImgComplete,
-                        "genre_id": moviesList.genre_ids
+                        "genre_id": movie[0].genre_ids,
+                        "genre_name" : []
                       }
-              }
              
         },
         
@@ -176,8 +156,8 @@
                                 });
                             }
                           );
-                          console.log(genre);
-         return genre;             
+            
+         return genre.map(item => ({name: item}));
         },
         sendMovies()
         {
