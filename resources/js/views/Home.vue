@@ -14,31 +14,19 @@
         <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
       </div>
       </q-form>
-
       <div v-show="visible">
-            <q-card class="my-card" style="width: 50vh;">
-              <div v-for="movie in moviesList">
-                     <div v-for="genre in movie.genre_name">
-                    <q-badge outline color="primary" :label="genre.name" />
-                  </div>
-                    <q-img :src="movie.url_img" id="qImg">
-                        <div class="absolute-top text-h6">
-                        {{ movie.name }}
-                        </div>
-                    </q-img>
-                    <q-card-section>
-                        {{ movie.synopsis }}
-                    </q-card-section>
-                  </div>
-              </q-card>
-        </div>
+          <Movie v-for="movie in moviesList" :movie="movie" :key="movie.id"/>>
+      </div>
     </div>
   </template>
   <script>
   import axios from 'axios';
-  import {Notify} from 'quasar';
+  import Movie from './component/Movie.vue';
   
   export default {
+    components: {
+      Movie
+    },
     data() {
       return {
         name: '',
@@ -48,9 +36,9 @@
           "url_genres" : 'https://api.themoviedb.org/3/genre/movie/list?language=fr',
         },      
         urlImgComplete: '',
-        jsonData: {},
         moviesList: [],
         visible: false,
+        prompt: false
       }
     },
     methods: {
@@ -72,7 +60,6 @@
               var name = file.name.split(ext)[0];
               const data = await this.getMovieWithGenre(name);
               this.moviesList.push(data);
-              console.log(data);
           }         
         })  
       });
@@ -164,7 +151,7 @@
         /**
          * Envoi data pour créer un film
          */
-          axios.post("http://127.0.0.1:8000/movie/get-information",this.jsonData,{
+          axios.post("http://127.0.0.1:8000/movie/get-information",this.moviesList,{
                                         headers:{
                                           accept: 'application/json',
                                           'Content-Type': 'application/json'
