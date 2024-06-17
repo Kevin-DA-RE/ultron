@@ -15,7 +15,7 @@
       </div>
       </q-form>
       <div v-show="visible">
-          <Movie v-for="movie in moviesList" :movie="movie" :key="movie.id"/>>
+          <Movie v-for="movie in moviesList" :movie="movie" :key="movie.id" @change-movie="getMovieWithGenre" />
       </div>
     </div>
   </template>
